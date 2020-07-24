@@ -1,0 +1,21 @@
+"firefox-developer-edition"
+        Mod4+f
+
+"emacsclient -c -a emacs"
+        Mod4+e
+
+"rofi -show run -theme /usr/share/rofi/themes/solarized.rasi"
+        Mod4+r
+
+"rofi -show window  -theme /usr/share/rofi/themes/solarized.rasi"
+        Mod4+v
+
+"st"
+        Mod4+t
+
+"dolph"
+        Mod4+d
+
+
+"pavucontrol"
+        Mod4+p

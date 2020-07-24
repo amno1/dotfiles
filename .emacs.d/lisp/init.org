@@ -86,23 +86,22 @@ load all that before I load any package.
 (global-unset-key (kbd "C-v"))
 #+END_SRC
 * Packages
-I might use certain 3rd party packages to configure my Emacs, so I load all the
+I might use certain 3rd party packages to tweak my Emacs, so I load all the
 packages before I set any Emacs customizations. Also in the past, I didn't use
-deffered loading, I used to load everything, so that was a good way to ensure
-that packages don't overwrite Emacs customizations I made. Not so long ago I
-have switched to lazy loading packages, so that is no longer ensured. Anyway, I
-am still using the same layout for my configuration file, at least I know where
-to look for stuff.
+deffered loading, I used to load all packages att starupt. It is a good way to
+ensure that packages don't overwrite Emacs customizations I made, as well as to
+make everythingi avialable. Not so long ago I have switched to lazy loading
+packages, so that is no longer ensured. Anyway, I am still using the same layout
+for my configuration file, at least I know where to look for the stuff.
 
-I try to have a scetion per package, though some packages are still clumped by
-the topic (C/C++, Dired, Helm, Org).
+I try to have one section (heading) per package, though some packages are still
+clumped by the topic (C/C++, Dired, Helm, Org).
 
 Code written to be used together with some package is (usually) in the same
-section as that package(s). I avoid clumping together several packages in
-use-package (some people like to put another use-package in :config part). I
-prefer using :after or init-hooks for this purpose. I also use use-package to
-download stuff from elpa/melpa (straight might be better, but use-package works
-too).
+section as that package(s). I avoid writing code in use-package directly (some
+people like to put another use-package in :config part). I prefer using :after
+or init-hooks for this purpose. I also use use-package to download stuff from
+elpa/melpa (straight might be better, but use-package works too).
 ** Ace-Window
 #+BEGIN_SRC emacs-lisp
 (use-package ace-window
@@ -283,15 +282,14 @@ too).
 (use-package bug-hunter :diminish)
 #+END_SRC
 ** C++
-This is mostly straight-forward installed packages and code copied from Emacs
+This is mostly straight-forward installed packages and some code copied from Emacs
 Wiki. I try to use descriptive names, so there shouldn't be any surprises what
-code does. I prefer kernel code style and makefiles to some other coding style
-and CMake, even for C++. Also I like to keep C and C++ separate (I don't load
- c++ mode for c code). It does make a tiny bit difference when it comes to
-syntax coloring and code completition. I also use yasnippets quite a lot (via
-Helm). I have recently switched from YCMD to LSP for completition.
-This is by no mean a finnished configuration, but it works for me on my day to
-day basis (home projects).
+code does. I prefer kernel code style and makefiles instead of some other coding styles
+and CMake; even for C++. Also I like to keep C and C++ separate (I don't load
+ c++ mode for c code). It does make a bit difference when it comes tosyntax
+coloring and code completition. I also use yasnippets quite a lot (via Helm). I
+have recently switched from YCMD to LSP for completition. This is by no mean a
+finnished configuration, but it works for me and my needs.
 #+BEGIN_SRC emacs-lisp
 (use-package company-c-headers
     :diminish
@@ -576,17 +574,16 @@ I use openwith package, and the below associations are copied from somewhere, I
 generally use only pdf and html I think.I actually use Emacs to play my music
 too, via mpv. Generally I use EMMS to either play a directory or a play list
 (usually some old m3u I have laying around since ages). However I don't use
-Openwith as found in Melpa or on gitHub, I have modified it to not function as a
-global minor mode. Instead it functions just a defun I can bind to a key. I
-prefer not to use xdg since gnome/kde folks can have strange preferences. I
-think a simple list in my init file is much nicer and easier to use then writing
-deskotp files and copying them all around the place as folks from KDE/Gnome
-likes us to do.
+Openwith as found in Melpa or on gitHub, I have modified it to not wok as a
+global minor mode. Instead it is a function I can bind to a key. I prefer not to
+use xdg for file associations. I think a simple list in my init file is much
+nicer and easier to use then writing deskotp files and copying them all around
+the place as folks from KDE/Gnome likes us to do.
 
 Occasionally I download something from YT via yt-download, but that is very rarely.
 
 When it comes to utilities I use most, it would be just C-x C-f and C-x C-v (via
-Helm). I do find dired-filter from Abo-Abo and dired-subree really useful. Peep
+Helm). I do find dired-filter and dired-subree from dired-utils really useful. Peep
 dired can be annoying so I have it disabled by default and bound to shortcut.
 
 Some annoyance with dired is that it jumps to first/last char in buffer, which
@@ -2155,8 +2152,6 @@ https://www.mortens.dev/blog/emacs-and-the-language-server-protocol/
                   org-startup-indented t))
 
 (use-package org-ql)
-(use-package elgantt
-       :ensure nil)
 
 ;; (use-package org2blog
 ;;       :diminish

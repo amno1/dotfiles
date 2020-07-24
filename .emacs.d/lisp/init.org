@@ -2877,7 +2877,6 @@ Keys relative to specific modes are in sections for respective mode.
 (global-set-key (kbd "C-v <return>") 'delete-other-windows)
 (global-set-key (kbd "C-v ,")        'split-window-right)
 (global-set-key (kbd "C-v .")        'split-window-below)
-(global-set-key (kbd "C-v m")        'e2wm:start-management)
 
 ;; cursor movement
 (global-set-key (kbd "M-n")     'scroll-up-line)

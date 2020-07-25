@@ -280,7 +280,8 @@ Nil mark the compilation unit for late load once finished compiling
         (if (and b (buffer-modified-p b)
 	         (y-or-n-p (format "Save buffer %s first? " (buffer-name b))))
 	    (with-current-buffer b (save-buffer)))))
-  (native-compile filename with-late-load))
+  (native-compile filename with-late-load)
+  (message "native compiled file %s" filename))
 
 (defun org-tangle-and-compile-file (file &optional bcompile ncompile)
   "Load Emacs Lisp source code blocks in the Org FILE.

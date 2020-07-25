@@ -55,23 +55,15 @@ load all that before I load any package.
 (defalias 'decf 'cl-decf)
 
 (require 'extras)
-;;(require 'bookmark+)
 (require 'key-chord)
-;;(require 'thing-edit)
 (require 'youtube-dl)
-;;(require 'workgroups)
 (require 'term-toggle)
 (require 'buffer-move)
 (require 'sv-kalender)
-;;(require 'auth-source)
 (require 'bash-completion)
 (require 'command-log-mode)
-(require 'e2wm)
-(require 'ne2wm-setup)
 (require 'member-functions)
 
-;;(require 'auth-source-pass)
-;;(require 'awesome-tray)
 (customize-set-variable 'use-package-always-ensure t)
 (customize-set-variable 'use-package-always-defer t)
 
@@ -462,7 +454,7 @@ finnished configuration, but it works for me and my needs.
 ** Clojure
 #+BEGIN_SRC emacs-lisp
 (use-package cider :diminish)
-(use-package ac-cider :after cider :diminish)
+;;(use-package ac-cider :after cider :diminish)
 (use-package clojure-mode-extra-font-locking :diminish)
 #+END_SRC
 ** CMake
@@ -1722,7 +1714,7 @@ _d_: Display error
       ;;         (add-to-list 'company-backends 'company-tern))
 
       (use-package jade-mode )
-      (use-package ac-js2 )
+      ;;(use-package ac-js2 )
       (use-package rjsx-mode )
 
       (use-package prettier-js
@@ -2109,22 +2101,10 @@ https://www.mortens.dev/blog/emacs-and-the-language-server-protocol/
 (use-package org
     :ensure nil
     :init (require 'org-protocol)
-          (setq org-capture-templates `(
-                ("p" "Protocol" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
-                "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
-                ("L" "Protocol Link" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
-                "* %? [[%:link][%(transform-square-brackets-to-round-ones\"%:description\")]]\n")
-                ("n" "Note" entry (file "~/Dokument/notes.org")
-                "* %? %^G\n%U" :empty-lines 1)
-                ("P" "Research project" entry (file "~/Org/inbox.org")
-	        "* TODO %^{Project title} :%^G:\n:PROPERTIES:\n:CREATED:
-                %U\n:END:\n%^{Project description}\n** 
-                TODO Literature review\n** TODO %?\n** TODO Summary\n** TODO Reports\n** Ideas\n" :clock-in t :clock-resume t)
-	        ("e" "Email" entry (file "~/Org/inbox.org")
-	        "* TODO %? email |- %:from: %:subject :EMAIL:\n:PROPERTIES:\n:CREATED: %U\n:EMAIL-SOURCE: %l\n:END:\n%U\n" :clock-in t :clock-resume t)))
-
-            (org-babel-do-load-languages 'org-babel-load-languages
-                '((python . t)
+          (add-hook 'org-mode-hook 'company-mode)
+          (add-hook 'org-mode-hook 'yas-minor-mode)
+    :config (org-babel-do-load-languages 'org-babel-load-languages
+              '((python . t)
                 (makefile . t)
                 (emacs-lisp . t)
                 (C . t)
@@ -2136,20 +2116,34 @@ https://www.mortens.dev/blog/emacs-and-the-language-server-protocol/
                 (shell . t)
                 (latex . t)))
 
-                (add-hook 'org-mode-hook 'company-mode)
-                (add-hook 'org-mode-hook 'yas-minor-mode)
-            (setq org-log-done 'time
-                  org-ditaa-jar-path "/usr/bin/ditaa"
-                  org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE"))
-                  org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold)))
-                  org-directory "~/Dokument/"
-                  org-default-notes-file (concat org-directory "notes.org")
-                  org-export-html-postamble nil
-                  org-hide-leading-stars t
-                  org-make-link-description t
-                  org-hide-emphasis-markers t
-                  org-startup-folded 'overview
-                  org-startup-indented t))
+          (setq org-capture-templates `(
+                ("p" "Protocol" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
+                "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
+                ("L" "Protocol Link" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
+                "* %? [[%:link][%(transform-square-brackets-to-round-ones\"%:description\")]]\n")
+                ("n" "Note" entry (file "~/Dokument/notes.org")
+                "* %? %^G\n%U" :empty-lines 1)
+                ("P" "Research project" entry (file "~/Org/inbox.org")
+	             "* TODO %^{Project title} :%^G:\n:PROPERTIES:\n:CREATED:
+                  %U\n:END:\n%^{Project description}\n** 
+                 TODO Literature review\n** TODO %?\n** TODO Summary\n** TODO Reports\n** Ideas\n" :clock-in t :clock-resume t)
+	            ("e" "Email" entry (file "~/Org/inbox.org")
+	             "* TODO %? email |- %:from: %:subject :EMAIL:\n:PROPERTIES:\n:CREATED: %U\n:EMAIL-SOURCE: %l\n:END:\n%U\n" :clock-in t :clock-resume t))
+
+                org-log-done 'time
+                org-ditaa-jar-path "/usr/bin/ditaa"
+                org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE"))
+                org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold)))
+                org-directory "~/Dokument/"
+                org-default-notes-file (concat org-directory "notes.org")
+                org-export-html-postamble nil
+                org-hide-leading-stars t
+                org-make-link-description t
+                org-hide-emphasis-markers t
+                org-startup-folded 'overview
+                org-startup-indented t)
+
+                (load-theme 'solarized-dark t))
 
 (use-package org-ql)
 

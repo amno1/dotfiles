@@ -582,12 +582,11 @@ elpa/melpa (straight might be better, but use-package works too).
 #+END_SRC
 ** Bash/Shell
 #+BEGIN_SRC emacs-lisp
-(autoload 'bash-completion-dynamic-complete
-          "bash-completion"
-          "BASH completion hook")
-(add-hook 'shell-dynamic-complete-functions
-          'bash-completion-dynamic-complete)
+(defun my-shell-init ()
+    (require 'bash-completion)
+    (bash-completion-setup))
 
+(add-hook 'sh-mode-hook 'my-shell-init)
 (add-hook 'sh-mode-hook 'flycheck-mode)
 (use-package better-shell :diminish)
 #+END_SRC
@@ -3064,7 +3063,6 @@ https://stackoverflow.com/questions/64360/how-to-copy-text-from-emacs-to-another
 (auto-image-file-mode)
 (auto-insert-mode 1)
 (auto-save-mode 1)
-(bash-completion-setup)
 (blink-cursor-mode 1)
 (column-number-mode 1)
 (delete-selection-mode 1)

@@ -55,15 +55,43 @@ load all that before I load any package.
 (defalias 'decf 'cl-decf)
 
 (require 'key-chord)
+(require 'font-lock+)
 (require 'youtube-dl)
 (require 'term-toggle)
 (require 'buffer-move)
-(require 'sv-kalender)
 (require 'command-log-mode)
 
 (customize-set-variable 'use-package-always-ensure t)
 (customize-set-variable 'use-package-always-defer t)
 
+
+(defun my-after-frame (frame)
+    (if (display-graphic-p frame)
+        (progn
+            (add-to-list 'default-frame-alist '(font . "Anonymous Pro-16"))
+            (set-face-attribute 'default nil :font "Anonymous Pro-16")
+            (set-face-attribute 'default nil :height 160)
+            (set-frame-font "Anonymous Pro-16" nil t))))
+
+(add-hook 'after-make-frame-functions 'my-after-frame)
+
+(defun my-calendar-init ()
+    (require 'sv-kalender)
+    (copy-face font-lock-constant-face 'calendar-iso-week-face)
+    (setq calendar-intermonth-text
+          '(propertize
+               (format "%2d"
+                   (car (calendar-iso-from-absolute
+                        (calendar-absolute-from-gregorian (list month day year)))))
+                        'font-lock-face 'calendar-iso-week-face))
+    (set-face-attribute 'calendar-iso-week-face nil :height 1.0 :foreground "#268bd2"))
+
+(add-hook 'calendar-mode-hook 'my-calendar-init)
+
+(defun change-font-height (delta)
+    (set-face-attribute 'default
+        (selected-frame)
+        :height (+ (face-attribute 'default :height) delta)))
 
 (defun my/quick-view-file-at-point ()
   "Preview the file at point then jump back after some idle time.
@@ -528,7 +556,6 @@ elpa/melpa (straight might be better, but use-package works too).
 ** Async
 #+BEGIN_SRC emacs-lisp
 (use-package async
-    :defer t
     :diminish
     :config (autoload 'dired-async-mode "dired-async.el" nil t)
             (async-bytecomp-package-mode 1))
@@ -540,6 +567,11 @@ elpa/melpa (straight might be better, but use-package works too).
     :config
         (atomic-chrome-start-server)
         (setq atomic-chrome-buffer-open-style 'frame))
+#+END_SRC
+** AUREL
+[[https://github.com/alezost/aurel][AUR]]
+#+BEGIN_SRC emacs-lisp
+(use-package aurel)
 #+END_SRC
 ** Autodim Buffers
 #+begin_src emacs-lisp
@@ -571,15 +603,6 @@ elpa/melpa (straight might be better, but use-package works too).
 #+END_SRC
 *** References:
 [[https://emacsredux.com/blog/2015/07/19/ace-jump-mode-is-dead-long-live-avy/][ace-jump-mode is Dead, Long Live Avy | Emacs Redux]]
-** BBDB
-#+BEGIN_SRC  emacs-lisp
-(use-package bbdb :diminish)
-(use-package helm-bbdb  :after helm :diminish)
-#+END_SRC
-** Beacon
-#+BEGIN_SRC emacs-lisp
-(use-package beacon :diminish)
-#+END_SRC
 ** Bash/Shell
 #+BEGIN_SRC emacs-lisp
 (defun my-shell-init ()
@@ -589,6 +612,15 @@ elpa/melpa (straight might be better, but use-package works too).
 (add-hook 'sh-mode-hook 'my-shell-init)
 (add-hook 'sh-mode-hook 'flycheck-mode)
 (use-package better-shell :diminish)
+#+END_SRC
+** BBDB
+#+BEGIN_SRC  emacs-lisp
+(use-package bbdb :diminish)
+(use-package helm-bbdb  :after helm :diminish)
+#+END_SRC
+** Beacon
+#+BEGIN_SRC emacs-lisp
+(use-package beacon :diminish)
 #+END_SRC
 ** Bibtext Completio
 #+BEGIN_SRC emacs-lisp
@@ -601,6 +633,10 @@ elpa/melpa (straight might be better, but use-package works too).
 ** Bug Hunter
 #+BEGIN_SRC emacs-lisp
 (use-package bug-hunter :diminish)
+#+END_SRC
+** BUI
+#+BEGIN_SRC emacs-lisp
+(use-package bui)
 #+END_SRC
 ** C++
 This is mostly straight-forward installed packages and some code copied from Emacs
@@ -627,7 +663,7 @@ finnished configuration, but it works for me and my needs.
         :diminish
         :config (modern-c++-font-lock-global-mode t))
 
-  (use-package google-c-style
+(use-package google-c-style
         :diminish
         :config
             ;; This prevents the extra two spaces in a namespace that Emacs
@@ -667,8 +703,8 @@ finnished configuration, but it works for me and my needs.
             (modify-frame-parameters
              frame (list (cons 'background-color orig)))))))
 
-    (defun qtmstr-compile-finish (buf status)
-        (with-current-buffer buf
+(defun qtmstr-compile-finish (buf status)
+      (with-current-buffer buf
             (let* ((color (if (string-match "^finished\\b" status)
                                "#dfd" "#fdd"))
                                found)
@@ -685,7 +721,7 @@ finnished configuration, but it works for me and my needs.
                                (overlay-put overlay 'face (list :background color))
                                (overlay-put overlay 'evaporate t))))))
 
-    (defun get-nearest-compilation-file ()
+(defun get-nearest-compilation-file ()
         "Search for the compilation file traversing up the directory tree."
         (let* ((dir default-directory) 
                (file-path)
@@ -711,18 +747,18 @@ finnished configuration, but it works for me and my needs.
     ;;   (cons "\\.\\(|c\\|cc\\|CC\\|cpp\\|cxx\\CXX\\|c++\\)\\'" "C/C++ implementation")
     ;;   '(nil "/* -*- c-file-style: \"linux\" -*- */ \n"))
 
- (defun clanguages-pairs-hook ()
+(defun clanguages-pairs-hook ()
      "Add some extra electric pairs to C and C++"
       (define-key c-mode-map "("  'electric-pair)
       (define-key c-mode-map "["  'electric-pair)
       (define-key c-mode-map "{"  'electric-pair))
 
- (defun c-modes-keys ()
+(defun c-modes-keys ()
       (define-key c-mode-base-map (kbd "C-c C-c") 'compile)
       (define-key c-mode-base-map (kbd "C-c C-r") 'compile-again)
       (define-key c-mode-base-map (kbd "C-c C-k") 'kill-compilation))
   
-  (defun my-c++-init ()
+(defun my-c++-init ()
       (require 'member-functions)
       (setq compilation-last-buffer nil
             compilation-read-command nil
@@ -741,7 +777,7 @@ finnished configuration, but it works for me and my needs.
 ;;                     display-buffer-alist)
 
       (add-hook 'c-mode-common-hook 'company-mode)
-      (add-hook 'c++-mode-hook #'lsp)
+      (add-hook 'c++-mode-hook 'lsp)
       (add-hook 'c++-mode-hook 'c-modes-keys)
       (add-hook 'c++-mode-hook 'hs-minor-mode)
       (add-hook 'c++-mode-hook 'yas-minor-mode)
@@ -749,7 +785,7 @@ finnished configuration, but it works for me and my needs.
       (add-hook 'c++-mode-hook 'auto-revert-mode)
       (add-hook 'c++-mode-hook 'clanguages-pairs-hook)
       (add-hook 'c++-mode-hook (lambda () (subword-mode 1)))
-      (add-hook 'c-mode-hook #'lsp)
+      (add-hook 'c-mode-hook 'lsp)
       (add-hook 'c-mode-hook 'c-modes-keys)
       (add-hook 'c-mode-hook 'hs-minor-mode)
       (add-hook 'c-mode-hook 'hide-ifdef-mode)
@@ -784,9 +820,28 @@ finnished configuration, but it works for me and my needs.
 ** Clojure
 #+BEGIN_SRC emacs-lisp
 (use-package cider :diminish)
-;;(use-package ac-cider :after cider :diminish)
+#+END_SRC
+** Clojure-mode-extra-fonts
+#+BEGIN_SRC emacs-lisp
 (use-package clojure-mode-extra-font-locking :diminish)
 #+END_SRC
+** Clojure-refactor
+#+BEGIN_SRC emacs-lisp
+(use-package clj-refactor)
+
+(defun my-clojure-mode-hook ()
+    (require 'clj-refactor)
+    (clj-refactor-mode 1)
+    (yas-minor-mode 1) ; for adding require/use/import statements
+    ;; This choice of keybinding leaves cider-macroexpand-1 unbound
+    (cljr-add-keybindings-with-prefix "C-c C-m"))
+
+(add-hook 'clojure-mode-hook #'my-clojure-mode-hook)
+#+END_SRC
+** Clomacs
+#+begin_src emacs-lisp
+(use-package clomacs)
+#+end_src
 ** CMake
 I don't use CMake mutch, for my own projects I am happy with GNU Make, however
 in C++ ecosystem, CMake is a must, so to make my life a tad bit easier I do have
@@ -795,7 +850,9 @@ it configured (somewhat).
 (use-package cmake-mode
     :diminish
     :mode ("CMakeLists.txt" ".cmake"))
-
+#+END_SRC
+** CMake-font-lock
+#+BEGIN_SRC emacs-lisp
 (use-package cmake-font-lock
     :diminish
     :commands (cmake-font-lock-activate)
@@ -820,7 +877,6 @@ it configured (somewhat).
                 ("C-n" . company-select-next)
                 ("C-p" . company-select-previous))
     :config
-    (progn
             (require 'company-capf)
             (require 'company-files)
             (setq company-idle-delay            0
@@ -837,7 +893,7 @@ it configured (somewhat).
                       'company-indent-or-complete-common)
                   (add-to-list 'company-backends 'company-cmake)
                   (add-to-list 'company-backends 'company-capf)
-                  (add-to-list 'company-backends 'company-files)))
+                  (add-to-list 'company-backends 'company-files))
 
 (use-package company-math
     :diminish
@@ -856,6 +912,10 @@ it configured (somewhat).
 ;; (use-package cuda-mode
 ;;     :mode (("\\.cu\\'" . cuda-mode)
 ;;            ("\\.cuh\\'" . cuda-mode)))
+#+END_SRC
+** Date-at-point
+#+BEGIN_SRC emacs-lisp
+(use-package date-at-point)
 #+END_SRC
 ** Default-text-scale
 #+BEGIN_SRC emacs-lisp
@@ -1174,7 +1234,9 @@ https://truongtx.me/tmtxt-dired-async.html
 https://github.com/stsquad/my-emacs-stuff/blob/master/my-dired.el
 ** Direnv
 #+BEGIN_SRC emacs-lisp
-(use-package direnv :config (direnv-mode) :diminish)
+(use-package direnv 
+    :config (direnv-mode)
+    :diminish)
 #+END_SRC
 ** Docker
 Currently I don't use it :-).
@@ -1197,8 +1259,8 @@ Currently I don't use it :-).
 ** Dumb jump
 #+BEGIN_SRC emacs-lisp
 (use-package dumb-jump
-    :diminish dumb-jump-mode
     :init   (dumb-jump-mode t)
+    :diminish
     :config (setq dumb-jump-selector 'helm
                   dumb-jump-force-searcher 'ag
                   dumb-jump-aggressive nil)
@@ -1348,7 +1410,8 @@ Allow editing of things in Chrome with Emacs.
 #+END_SRC
 ** Emacs Refactor
 #+begin_src emacs-lisp
-(use-package emr)
+(use-package emr
+    :diminish)
 #+end_src
 ** Emmet mode
 #+BEGIN_SRC emacs-lisp
@@ -1457,6 +1520,10 @@ Allow editing of things in Chrome with Emacs.
 #+BEGIN_SRC emacs-lisp
 (use-package expand-region  :diminish)
 #+END_SRC
+** Flower
+#+begin_src emacs-lisp
+(use-package flower)
+#+end_src
 ** Flycheck
 #+begin_src emacs-lisp
 (use-package flycheck
@@ -2292,6 +2359,19 @@ _d_: Display error
 #+END_SRC
 *** References:
 https://www.mortens.dev/blog/emacs-and-the-language-server-protocol/
+** Make-color
+https://github.com/alezost/make-color.el
+#+BEGIN_SRC emacs-lisp
+(use-package make-color)
+#+END_SRC
+** Markdown
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+    :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+    :init (setq markdown-command "multimarkdown"))
+#+END_SRC
 ** md4d (Reddit)
 #+BEGIN_SRC emacs-lisp
 (use-package md4rd    
@@ -2478,6 +2558,7 @@ https://www.mortens.dev/blog/emacs-and-the-language-server-protocol/
                 (load-theme 'solarized-dark t))
 
 (use-package org-ql)
+(use-package org-emms)
 
 ;; (use-package org2blog
 ;;       :diminish
@@ -2775,6 +2856,10 @@ RealGud - https://github.com/realgud/realgud
 #+BEGIN_SRC emacs-lisp
 (use-package ag)
 #+END_SRC
+** Simple-httpd
+#+begin_src emacs-lisp
+(use-package simple-httpd)
+#+end_src
 ** Spellcheckers
 https://www.masteringemacs.org/article/spotlight-flycheck-a-flymake-replacement
 #+BEGIN_SRC emacs-lisp
@@ -2904,6 +2989,14 @@ https://stackoverflow.com/questions/64360/how-to-copy-text-from-emacs-to-another
 #+BEGIN_SRC emacs-lisp
 (use-package try)
 #+END_SRC
+** TS (Time & Date)
+#+BEGIN_SRC emacs-lisp
+(use-package ts)
+#+END_SRC
+** TUI
+#+BEGIN_SRC emacs-lisp
+;;(use-package tui :ensure nil)
+#+END_SRC
 ** Web-beautify
 #+BEGIN_SRC emacs-lisp
 (use-package web-beautify
@@ -2983,11 +3076,7 @@ https://stackoverflow.com/questions/64360/how-to-copy-text-from-emacs-to-another
 #+END_SRC
 ** ZZZ to char
 #+BEGIN_SRC emacs-lisp
-(use-package zzz-to-char )
-#+END_SRC
-** TS (Time & Date)
-#+BEGIN_SRC emacs-lisp
-(use-package ts)
+(use-package zzz-to-char)
 #+END_SRC
 * Emacs tweaks
 #+BEGIN_SRC emacs-lisp
@@ -3017,8 +3106,6 @@ https://stackoverflow.com/questions/64360/how-to-copy-text-from-emacs-to-another
       frame-title-format "Emacs: %b %+%+ %f"
       sentence-end-double-space nil
       auto-revert-verbose nil
-      ;; utf-8
-      ;; default-buffer-file-coding-system 'utf-8
       ;; auto save
       auto-save-default t
       auto-save-timeout 10 ;; default 30
@@ -3082,6 +3169,8 @@ https://stackoverflow.com/questions/64360/how-to-copy-text-from-emacs-to-another
 (tool-bar-mode -1)
 (winner-mode t)
 (beacon-mode t)
+(display-time)
+(turn-on-auto-fill)
 ;(auth-source-pass-enable)
 
 (diminish 'winner-mode)
@@ -3094,8 +3183,6 @@ https://stackoverflow.com/questions/64360/how-to-copy-text-from-emacs-to-another
 (diminish 'async-dired-mode)
 (diminish 'auto-insert-mode)
 
-(display-time)
-(turn-on-auto-fill)
 (fset 'yes-or-no-p 'y-or-n-p)
 
 (put 'upcase-region 'disabled nil)
@@ -3106,7 +3193,6 @@ https://stackoverflow.com/questions/64360/how-to-copy-text-from-emacs-to-another
 (setq wg-prefix-key (kbd "C-t"))
 (setq youtube-dl-directory "~/Downloads")
 
-;;(setq solarized-scale-org-headlines t)
 (setq-default abbrev-mode t
               save-place t
               indent-tabs-mode nil
@@ -3122,39 +3208,11 @@ https://stackoverflow.com/questions/64360/how-to-copy-text-from-emacs-to-another
 
 (add-hook 'comint-output-filter-functions 'comint-watch-for-password-prompt)
 
-(defun my-after-frame (frame)
-    (if (display-graphic-p frame)
-        (progn
-            (add-to-list 'default-frame-alist '(font . "Anonymous Pro-16"))
-            (set-face-attribute 'default nil :font "Anonymous Pro-16")
-            (set-face-attribute 'default nil :height 160)
-            (set-frame-font "Anonymous Pro-16" nil t))))
+(use-package solarized-theme
+    :init (load-theme 'solarized-dark t)
+    :config (setq solarized-scale-org-headlines t))
 
 (mapc 'my-after-frame (frame-list))
-(add-hook 'after-make-frame-functions 'my-after-frame)
-
-(require 'font-lock+)
-
-(defun change-font-height (delta)
-    (set-face-attribute 'default
-        (selected-frame)
-        :height (+ (face-attribute 'default :height) delta)))
-
-(use-package solarized-theme
-    :init (load-theme 'solarized-dark t))
-
-(copy-face font-lock-constant-face 'calendar-iso-week-face)
-
-(setq calendar-intermonth-text
-      '(propertize
-        (format "%2d"
-                (car
-                 (calendar-iso-from-absolute
-                  (calendar-absolute-from-gregorian (list month day year)))))
-        'font-lock-face 'calendar-iso-week-face))
-
-(set-face-attribute 'calendar-iso-week-face nil
-                    :height 1.0 :foreground "#268bd2")
 ;;(awesome-tray-mode 1)
 #+END_SRC
 * Global Shortcuts
@@ -3165,6 +3223,52 @@ etc).Here are also commands used in all modes, like cursor movement & sml.
 
 Keys relative to specific modes are in sections for respective mode.
   #+BEGIN_SRC emacs-lisp
+(defhydra goto (:color blue :hint nil)
+  "
+Goto:
+^Char^              ^Word^                ^org^                    ^search^
+^^^^^^^^---------------------------------------------------------------------------
+_c_: 2 chars        _w_: word by char     _h_: headline in buffer  _o_: helm-occur
+_C_: char           _W_: some word        _a_: heading in agenda   _f_: search forward
+_L_: char in line   _s_: subword by char  _q_: swoop org buffers   _b_: search backward
+^  ^                _S_: some subword     ^ ^                      ^ ^
+-----------------------------------------------------------------------------------
+_B_: helm-buffers       _l_: avy-goto-line
+_m_: helm-mini          _i_: ace-window
+_R_: helm-recentf
+
+_n_: Navigate           _._: mark position _/_: jump to mark
+"
+  ("c" avy-goto-char-2)
+  ("C" avy-goto-char)
+  ("L" avy-goto-char-in-line)
+  ("w" avy-goto-word-1)
+  ;; jump to beginning of some word
+  ("W" avy-goto-word-0)
+  ;; jump to subword starting with a char
+  ("s" avy-goto-subword-1)
+  ;; jump to some subword
+  ("S" avy-goto-subword-0)
+
+  ("l" avy-goto-line)
+  ("i" ace-window)
+
+  ("h" helm-org-headlines)
+  ("a" helm-org-agenda-files-headings)
+  ("q" helm-multi-swoop-org)
+
+  ("o" helm-occur)
+
+  ("f" isearch-forward)
+  ("b" isearch-backward)
+
+  ("." org-mark-ring-push :color red)
+  ("/" org-mark-ring-goto :color blue)
+  ("B" helm-buffers-list)
+  ("m" helm-mini)
+  ("R" helm-recentf)
+  ("n" hydra-navigate/body))
+
 ; Window-buffer operations
 (global-set-key [f1]      'term-toggle)
 (global-set-key [f2]      'term-toggle-eshell)
@@ -3232,6 +3336,7 @@ Keys relative to specific modes are in sections for respective mode.
 
 ;; Stack Exchange
 (global-set-key (kbd "C-f a")   'sx-ask)
+(global-set-key (kbd "C-f g")   'goto/body)
 (global-set-key (kbd "C-f m")   'sx-inbox)
 (global-set-key (kbd "C-f o")   'sx-open-link)
 (global-set-key (kbd "C-f q")   'sx-tab-all-questions)
@@ -3273,174 +3378,4 @@ Keys relative to specific modes are in sections for respective mode.
 (global-set-key (kbd "C-v e r")     'emms-start)
 (global-set-key (kbd "C-v e s")     'emms-stop)
 (global-set-key (kbd "C-v e m")     'emms-play-m3u-playlist)
-
 #+END_SRC
-* References
-** Other people setups
-[[https://matthewbauer.us/bauer/][bauer: an Emacs+Nix IDE]]
-[[https://ladicle.com/post/config/#lsp][Ladicle's Emacs Configuration]]
-[[https://alhassy.github.io/init/][Al-Hassys Setup]]
-[[https://ladicle.com/post/config/#c-c][Igarashis Setup]]
-[[http://www.coli.uni-saarland.de/~slemaguer/emacs/main.html][Saarlands Setup]]
-[[https://emacs.nasy.moe/][Nasys Setup]]
-[[http://home.thep.lu.se/~karlf/emacs.html#sec-32-1][Karl Fogelmarks Setup]]
-[[https://github.com/jwiegley/dot-emacs][Wiegleys]]
-[[https://emacs-leuven.readthedocs.io/en/stable/][Leuven]]
-[[https://github.com/kaushalmodi/.emacs.d][KaushalModi]]
-[[https://github.com/raxod502/radian][Radian]]
-[[http://irfu.cea.fr/Pisp/vianney.lebouteiller/emacs.html][Everything with Emacs]]
-[[https://github.com/LdBeth/InfernoEmacs][Inferno Emacs]]
-[[https://coldnew.github.io/coldnew-emacs/][coldnew's emacs]]
-[[https://zzamboni.org/post/2017-12-17-my-emacs-configuration-with-commentary/][Zamboni's configuration]]
-[[https://writequit.org/org/settings.html][Lee's Emacs settings file]]
-[[https://gitlab.com/protesilaos/dotfiles/-/blob/master/emacs/.emacs.d/emacs-init.org][Protesilaos]]
-[[https://emacs.nasy.moe/#org0de8c07][Emacs Configuration]]
-** Some userful tips
-[[http://pragmaticemacs.com/page/7/][Pragmatic Emacs | practical tips for everyday emacs | Page 7]]
-[[https://github.com/robbert-vdh/dotfiles/blob/master/user/emacs/.config/doom/config.org#ligatures][Doom Emacs - Ligatures]]
-[[https://jimmenard.com/emacs_tips.html][Emacs]] (Has some skeleton usage)
-[[http://cachestocaches.com/2015/8/getting-started-use-package/][Getting Started with Use-Package]]
-[[https://two-wrongs.com/migrating-away-from-use-package][Migrating Away From Use-Package]]
-[[http://mjwall.com/blog/2013/10/04/how-i-use-emacs/][How I use Emacs - mjwall.com]]
-[[http://kitchingroup.cheme.cmu.edu/blog/2014/09/14/Colorized-text-in-Emacs/][Colorized text in Emacs]]
-[[http://www.nongnu.org/emacs-tiny-tools/elisp-coding/index-body.html][Elisp Coding Thoughts]]
-[[https://stackoverflow.com/questions/23772890/how-to-find-a-bug-in-emacs-or-init-el][debugging - How to find a bug in ".emacs" or "init.el"? - Stack Overflow]]
-* Packages to test (wish list):
-[[https://github.com/tmalsburg/guess-language.el][Guess Language]]
-[[https://github.com/jacktasia/dotemacs/blob/master/dotemacs24.el][Some useful hydras]]
-[[https://github.com/jojojames/smart-jump][Smart Jump]]
-[[https://github.com/jojojames/matcha][Matcha (Hydras)]]
-[[https://github.com/LefterisJP/malinka][Malinka (C++ Project Management)]]
-[[https://github.com/jojojames/grizzl][Grizzl (Fuzzy Search)]]
-[[https://github.com/Vifon/focus-autosave-mode.el][Focus autosave]]
-[[https://github.com/victorhge/iedit][Edit multiple regions (? Not sure about this one)]]
-[[https://github.com/magit/transient][GitHub - magit/transient: Transient commands]]
-[[https://kungsgeten.github.io/yankpad13.html][Yankpad 1.3]]
-[[https://github.com/redguardtoo/evil-matchit][GitHub - redguardtoo/evil-matchit: Vim matchit ported into Emacs]]
-[[https://github.com/redguardtoo/wucuo][GitHub - redguardtoo/wucuo: Fastest solution to spell check camel case code or plain text]]
-[[https://github.com/Wilfred/tco.el][Tail call optimisation in Emacs lisp]]
-[[https://github.com/nicferrier/emacs-kv][GitHub - nicferrier/emacs-kv: Key/Value collection type functions: for alists, hashtables and plists. Useful stuff.]]
-[[https://github.com/nicferrier/elnode][GitHub - nicferrier/elnode: evented io webserver right inside your emacs.]]
-https://github.com/nicferrier/emacs-twaddle
-[[https://github.com/nicferrier/emacs-pipe][GitHub - nicferrier/emacs-pipe: use pipes to communicate with processes in Emacs]]
-https://github.com/hayamiz/twittering-mode
-* Tests
-#+BEGIN_SRC emacs-lisp
-(defhydra hydra-windows ()
-  "C-arrow = switch, S-arrow = size, M-arrow = move"
-  ("C-<left>" windmove-left nil)
-  ("C-<right>" windmove-right nil)
-  ("C-<up>" windmove-up nil)
-  ("C-<down>" windmove-down nil)
-  ("S-<left>" hydra-move-splitter-left nil)
-  ("S-<right>" hydra-move-splitter-right  nil)
-  ("S-<up>" hydra-move-splitter-up nil)
-  ("S-<down>" hydra-move-splitter-down nil)
-  ("M-<left>" buf-move-left nil)
-  ("M-<right>" buf-move-right nil)
-  ("M-<up>" buf-move-up nil)
-  ("M-<down>" buf-move-down nil)
-  ("p" previous-buffer "prev-buf")
-  ("n" next-buffer "next-buf")
-  ("1" delete-other-windows "1")
-  ("d" delete-window "del")
-  ("k" kill-buffer "kill")
-  ("s" save-buffer "save")
-  ("u" (progn (winner-undo) (setq this-command 'winner-undo)) "undo")
-  ("r" winner-redo "redo")
-  ("b" helm-mini "helm-mini" :exit t)
-  ("f" helm-find-files "helm-find" :exit t)
-  ("|" (lambda () (interactive) (split-window-right) (windmove-right)))
-  ("_" (lambda () (interactive) (split-window-below) (windmove-down)))
-  ("q" nil "cancel")
-  )
-
-(global-set-key (kbd "M-#") 'hydra-windows/body)
-
-(defhydra goto (:color blue :hint nil)
-  "
-Goto:
-^Char^              ^Word^                ^org^                    ^search^
-^^^^^^^^---------------------------------------------------------------------------
-_c_: 2 chars        _w_: word by char     _h_: headline in buffer  _o_: helm-occur
-_C_: char           _W_: some word        _a_: heading in agenda   _p_: helm-swiper
-_L_: char in line   _s_: subword by char  _q_: swoop org buffers   _f_: search forward
-^  ^                _S_: some subword     ^ ^                      _b_: search backward
------------------------------------------------------------------------------------
-_B_: helm-buffers       _l_: avy-goto-line
-_m_: helm-mini          _i_: ace-window
-_R_: helm-recentf
-
-_n_: Navigate           _._: mark position _/_: jump to mark
-"
-  ("c" avy-goto-char-2)
-  ("C" avy-goto-char)
-  ("L" avy-goto-char-in-line)
-  ("w" avy-goto-word-1)
-  ;; jump to beginning of some word
-  ("W" avy-goto-word-0)
-  ;; jump to subword starting with a char
-  ("s" avy-goto-subword-1)
-  ;; jump to some subword
-  ("S" avy-goto-subword-0)
-
-  ("l" avy-goto-line)
-  ("i" ace-window)
-
-  ("h" helm-org-headlines)
-  ("a" helm-org-agenda-files-headings)
-  ("q" helm-multi-swoop-org)
-
-  ("o" helm-occur)
-  ("p" swiper-helm)
-
-  ("f" isearch-forward)
-  ("b" isearch-backward)
-
-  ("." org-mark-ring-push :color red)
-  ("/" org-mark-ring-goto :color blue)
-  ("B" helm-buffers-list)
-  ("m" helm-mini)
-  ("R" helm-recentf)
-  ("n" hydra-navigate/body))
-
-(global-set-key (kbd "C-f g") 'goto/body)
-
-;; timestamp substraction
-;; ;;; -*- lexical-binding: t -*-
-;; ;;;
-;; ;;; this file:
-;; ;;;   http://user.it.uu.se/~embe8573/emacs-init/time-cmp.el
-;; ;;;   https://dataswamp.org/~incal/emacs-init/time-cmp.el
-;;
-;; (defun wall-clock-time (h1 m1 s1 h2 m2 s2)
-;;   (let*((d   08) ; arbitrary day to use below, any would do
-;;         (m   05) ; actually something cool happened that day
-;;         (y 1978) ; in the history of climbing
-;;         (total-seconds-1 (float-time (encode-time s1 m1 h1 d m y)))
-;;         (total-seconds-2 (float-time (encode-time s2 m2 h2 d m y)))
-;;         (s-diff (- total-seconds-2 total-seconds-1)) )
-;;     (format-seconds "%.2h:%.2m:%.2s" s-diff) ))
-;; (defalias 'wct #'wall-clock-time)
-;; ;; (wct 09 35 10 23 00 00) ; 13:24:50
-;; ;; (wct 09 35 10 09 35 20) ; 00:00:10
-;;
-;; (defun time-between-times (year1 month1 day1
-;;                            year2 month2 day2)
-;;   (let*((seconds-then  (float-time (encode-time 0 0 0 day1 month1 year1)))
-;;         (seconds-now   (float-time (encode-time 0 0 0 day2 month2 year2)))
-;;         (seconds-diff  (- seconds-now seconds-then)) )
-;;     (format-seconds "%yy %dd" seconds-diff)))
-;; ;;   (time-between-times 1958  4 13 1958 8 30) ; Tahiti Nui 2 -;; 3,
-;; ;;                                             ; i.e. 0y 139d
-;;
-;; (defun get-time-since (year month day)
-;;   (interactive "nyear: \nnmonth: \nnday: ")
-;;   (message "%s"
-;;            (format-seconds
-;;             "%yy %dd"
-;;             (float-time
-;;              (time-since (encode-time 0 0 0 day month year)) ))))
-;; ;; (get-time-since 2011 09 27) ; 8y 228d @ 2020-05-10
-#+END_SRC
-

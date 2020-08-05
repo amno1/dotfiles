@@ -25,10 +25,13 @@ do_files() {
     done
 }
 
-[ -d "./tests" ] && {
-    cd tests
-    do_files 
-    cd ..
-}
+for file in *
+do
+    echo "$file"
+    [ -d "$file" ] && {
+        cd "$file"
+        do_files 
+        cd ..
+    }
+done
 
-do_files
